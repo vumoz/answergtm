@@ -49,7 +49,7 @@ npm run typecheck
 npm run build && npm start
 ```
 
-Set `BRAND_DOMAIN=yourshop.com` before `npm run seed`, or edit the project, so the tracker can tell when engines cite your own site.
+Add your website (for example `bionaturebloom.com`) under **Prompts and competitors → Your brand**, or set `BRAND_DOMAIN` before `npm run seed`. The tracker uses it to spot when an AI answer links to your own site.
 
 ## How it works
 

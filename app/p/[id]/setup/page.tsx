@@ -1,4 +1,4 @@
-import { addCompetitorAction, addPromptAction, deleteCompetitorAction, togglePromptAction } from "@app/actions";
+import { addCompetitorAction, addPromptAction, deleteCompetitorAction, togglePromptAction, updateBrandAction } from "@app/actions";
 import { getProject, listCompetitors, listPrompts } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +16,14 @@ export default async function Setup({ params }: { params: Promise<{ id: string }
         Track the questions real buyers ask. We look for {project.brand_name}
         {project.brand_aliases.length > 0 && ` (also "${project.brand_aliases.join('", "')}")`} and every competitor below in each answer.
       </p>
+
+      <h2>Your brand</h2>
+      <p className="quiet">Your website lets the tracker spot when an AI answer links to your own site as a source.</p>
+      <form action={updateBrandAction.bind(null, projectId)} className="inline">
+        <input name="brandDomain" placeholder="Your website, e.g. example.com" defaultValue={project.brand_domain ?? ""} />
+        <input name="aliases" placeholder="Other names, comma separated" defaultValue={project.brand_aliases.join(", ")} />
+        <button type="submit">Save</button>
+      </form>
 
       <h2>Prompts ({prompts.filter((p) => p.active).length} active)</h2>
       <div className="panel">
