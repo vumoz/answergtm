@@ -3,6 +3,7 @@
  * joint comfort supplement) with competitors and buyer-style prompts.
  * Edit the lists below or add more from the dashboard.
  */
+import "./env";
 import { addCompetitor, addPrompt, createProject, listProjects } from "../src/lib/db";
 
 const existing = listProjects().find((p) => p.brand_name === "BioNature Bloom");

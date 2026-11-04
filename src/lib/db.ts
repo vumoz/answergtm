@@ -159,6 +159,12 @@ export function getProject(id: number): Project | undefined {
   return r ? toProject(r) : undefined;
 }
 
+export function updateBrand(id: number, b: { brandDomain?: string | null; aliases?: string[] }) {
+  getDb()
+    .prepare("UPDATE projects SET brand_domain = ?, brand_aliases = ? WHERE id = ?")
+    .run(b.brandDomain ?? null, JSON.stringify(b.aliases ?? []), id);
+}
+
 // Competitors ----------------------------------------------------------------
 
 export function addCompetitor(projectId: number, c: { name: string; domain?: string; aliases?: string[] }): number {

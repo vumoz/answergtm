@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { addCompetitor, addPrompt, createProject, deleteCompetitor, setPromptActive } from "@/lib/db";
+import { addCompetitor, addPrompt, createProject, deleteCompetitor, setPromptActive, updateBrand } from "@/lib/db";
 import { runTracking } from "@/lib/runner";
 import type { EngineId } from "@/lib/types";
 
@@ -23,6 +23,14 @@ export async function createProjectAction(form: FormData) {
     country: String(form.get("country") ?? "").trim().toUpperCase() || undefined,
   });
   redirect(`/p/${id}/setup`);
+}
+
+export async function updateBrandAction(projectId: number, form: FormData) {
+  const raw = String(form.get("brandDomain") ?? "").trim();
+  // Accept a full link like https://www.example.com/shop and keep just the domain.
+  const brandDomain = raw ? raw.replace(/^[a-z]+:\/\//i, "").replace(/^www\./i, "").split("/")[0].toLowerCase() : null;
+  updateBrand(projectId, { brandDomain, aliases: list(form.get("aliases")) });
+  revalidatePath(`/p/${projectId}`, "layout");
 }
 
 export async function addPromptAction(projectId: number, form: FormData) {

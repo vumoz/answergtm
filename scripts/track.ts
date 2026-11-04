@@ -2,6 +2,7 @@
  * Run a tracking round from the command line.
  *   npm run track -- --project 1 --samples 3 --engines chatgpt,perplexity
  */
+import "./env";
 import { listProjects } from "../src/lib/db";
 import { runTracking } from "../src/lib/runner";
 import { buildReport } from "../src/lib/report";
