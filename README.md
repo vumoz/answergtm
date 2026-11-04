@@ -11,6 +11,12 @@ It asks your buyer prompts on **ChatGPT, Perplexity, Gemini, Google AI Overviews
 - **Sources to win**: sites AI cites when it names a competitor but not you
 - **Every raw answer** with its sources, so any number can be checked
 
+## Site audit and fix studio (phase 2)
+
+- **Site audit** checks whether AI engines can read, understand and quote your site: AI crawler access in robots.txt (ChatGPT, Perplexity, Claude, Google, Bing), llms.txt, sitemap, noindex tags, pages that only render with JavaScript, FAQ content, quotable facts and sources, Organization and Product schema, machine-readable ratings, and Shopify product descriptions. It gives a 0 to 100 readiness score.
+- **Fix studio** turns findings into ready-to-paste fixes: a robots.txt block, llms.txt, Organization, Product and FAQ JSON-LD, and FAQ or product page copy. Claude writes the copy when `ANTHROPIC_API_KEY` is set; otherwise you get a fill-in template. It uses only the facts you give it and marks gaps with [ADD].
+- **Claim checker** flags supplement copy that breaks FTC and FDA rules: disease claims, "FDA approved", replacing medication, unsupported "clinically proven", hype, absolute safety, detox claims, and a missing DSHEA disclaimer. Every draft is checked, and Claude gets one pass to fix what it flagged. You can also paste any ad or email to check it. This is a first pass, not legal advice.
+
 ## Quick start
 
 Needs Node 22.5 or newer (uses the built-in `node:sqlite`).
@@ -59,13 +65,16 @@ src/lib/analyze.ts finds brand mentions, position, sentiment and cited domains i
 src/lib/stats.ts   Wilson intervals and the significance test for changes
 src/lib/runner.ts  runs prompts × engines × samples with retries and stores answers
 src/lib/report.ts  turns stored answers into the dashboard numbers
+src/lib/audit/     site audit: robots.txt rules, page analysis, Shopify feed
+src/lib/fixes.ts   fix generators and Claude-written drafts
+src/lib/compliance.ts  supplement claim checker
 src/lib/db.ts      SQLite storage (data/tracker.db)
 app/               Next.js dashboard
 ```
 
 ## Roadmap
 
-1. **Measure** (this release): prompt tracking, scores with ranges, competitor and source views
-2. **Diagnose + Fix**: AI readiness audit (crawlers, schema, product feed) and a fix studio with a claim-compliance check for supplement copy
+1. **Measure**: prompt tracking, scores with ranges, competitor and source views
+2. **Diagnose + Fix** (this release): AI readiness audit, fix studio and claim checker
 3. **Prove**: GA4 and Shopify connection for AI-referral traffic and revenue
 4. **Scale**: off-site playbook, accuracy alerts, agency workspaces, billing

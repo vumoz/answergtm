@@ -2,6 +2,8 @@ import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import path from "node:path";
 import type { AnswerAnalysis, BrandSpec, Citation } from "./types";
+import type { AuditResult } from "./audit";
+import type { ComplianceResult } from "./compliance";
 
 export interface Project {
   id: number;
@@ -100,6 +102,25 @@ CREATE TABLE IF NOT EXISTS answers (
 );
 CREATE INDEX IF NOT EXISTS answers_run ON answers(run_id);
 CREATE INDEX IF NOT EXISTS answers_prompt ON answers(prompt_id);
+CREATE TABLE IF NOT EXISTS audits (
+  id INTEGER PRIMARY KEY,
+  project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  site TEXT NOT NULL,
+  score INTEGER NOT NULL,
+  result TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE TABLE IF NOT EXISTS fixes (
+  id INTEGER PRIMARY KEY,
+  project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  format TEXT NOT NULL DEFAULT 'markdown',
+  compliance TEXT,
+  generated_by TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
 `;
 
 let db: DatabaseSync | null = null;
@@ -257,4 +278,57 @@ export function brandSpecs(projectId: number): BrandSpec[] {
     { key: "self", name: p.brand_name, aliases: p.brand_aliases, domain: p.brand_domain },
     ...listCompetitors(projectId).map((c) => ({ key: `c:${c.id}`, name: c.name, aliases: c.aliases, domain: c.domain })),
   ];
+}
+
+// Audits and fixes -----------------------------------------------------------
+
+export interface AuditRow {
+  id: number;
+  project_id: number;
+  site: string;
+  score: number;
+  result: AuditResult;
+  created_at: string;
+}
+export interface FixRow {
+  id: number;
+  project_id: number;
+  kind: string;
+  title: string;
+  content: string;
+  format: "markdown" | "html" | "text";
+  compliance: ComplianceResult | null;
+  generated_by: string | null;
+  created_at: string;
+}
+
+export function saveAudit(projectId: number, result: AuditResult): number {
+  const res = getDb()
+    .prepare("INSERT INTO audits (project_id, site, score, result) VALUES (?, ?, ?, ?)")
+    .run(projectId, result.site, result.score, JSON.stringify(result));
+  return Number(res.lastInsertRowid);
+}
+export function latestAudit(projectId: number): AuditRow | undefined {
+  const r = getDb().prepare("SELECT * FROM audits WHERE project_id = ? ORDER BY id DESC LIMIT 1").get(projectId);
+  return r ? ({ ...(r as unknown as AuditRow), result: json<AuditResult>(r.result, {} as AuditResult) }) : undefined;
+}
+
+export function saveFix(f: { projectId: number; kind: string; title: string; content: string; format?: FixRow["format"]; compliance?: ComplianceResult | null; generatedBy?: string }): number {
+  const res = getDb()
+    .prepare("INSERT INTO fixes (project_id, kind, title, content, format, compliance, generated_by) VALUES (?, ?, ?, ?, ?, ?, ?)")
+    .run(f.projectId, f.kind, f.title, f.content, f.format ?? "markdown", f.compliance ? JSON.stringify(f.compliance) : null, f.generatedBy ?? null);
+  return Number(res.lastInsertRowid);
+}
+function toFix(r: Row): FixRow {
+  return { ...(r as unknown as FixRow), compliance: json<ComplianceResult | null>(r.compliance, null) };
+}
+export function listFixes(projectId: number): FixRow[] {
+  return getDb().prepare("SELECT * FROM fixes WHERE project_id = ? ORDER BY id DESC").all(projectId).map(toFix);
+}
+export function getFix(id: number): FixRow | undefined {
+  const r = getDb().prepare("SELECT * FROM fixes WHERE id = ?").get(id);
+  return r ? toFix(r) : undefined;
+}
+export function deleteFix(id: number) {
+  getDb().prepare("DELETE FROM fixes WHERE id = ?").run(id);
 }

@@ -34,9 +34,16 @@ td.num, th.num { text-align: right; white-space: nowrap; font-variant-numeric: t
 .pill { display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: 12px; background: var(--line); color: var(--ink); margin: 0 4px 4px 0; }
 .good { color: var(--good); } .bad { color: var(--bad); } .warn { color: var(--warn); } .quiet { color: var(--quiet); }
 .callout { background: var(--accent-soft); border-radius: 10px; padding: 12px 16px; margin: 16px 0; }
-form.inline { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+form.inline, div.inline { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 input, select, textarea { font: inherit; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); }
 button { font: inherit; padding: 7px 14px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: var(--panel); cursor: pointer; font-weight: 600; }
 button.secondary { background: transparent; color: var(--accent); }
 pre.answer { white-space: pre-wrap; background: var(--bg); border-radius: 8px; padding: 12px; margin: 8px 0; font: 13px/1.5 ui-monospace, monospace; }
 .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+ul.issues { margin: 8px 0; padding-left: 18px; }
+ul.issues li { margin-bottom: 8px; }
+ul.issues li div { color: var(--ink); }
+ul.issues li div.quiet { color: var(--quiet); }
+.pill.good { background: var(--accent-soft); } .pill.bad, .pill.warn { background: var(--line); }
+details summary { cursor: pointer; }
+button:disabled { opacity: .6; cursor: progress; }
