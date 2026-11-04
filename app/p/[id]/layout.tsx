@@ -17,6 +17,8 @@ export default async function ProjectLayout({ children, params }: { children: Re
         <nav>
           <Link href={`/p/${id}`}>Overview</Link>
           <Link href={`/p/${id}/answers`}>Answers</Link>
+          <Link href={`/p/${id}/audit`}>Site audit</Link>
+          <Link href={`/p/${id}/fixes`}>Fix studio</Link>
           <Link href={`/p/${id}/setup`}>Prompts and competitors</Link>
         </nav>
       </header>
